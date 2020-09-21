@@ -54,13 +54,13 @@ namespace ChinookSystem.BLL
         }
 
         [DataObjectMethod(DataObjectMethodType.Select, false)]
-        public AlbumArtist Album_FindByID(int albumid)
+        public AlbumList Album_FindByID(int albumid)
         {
             using (var context = new ChinookSystemContext())
             {
                 var results = (from x in context.Albums
                               where x.AlbumId == albumid
-                              select new AlbumArtist
+                              select new AlbumList
                               {
                                   AlbumId = x.AlbumId,
                                   Title = x.Title,
