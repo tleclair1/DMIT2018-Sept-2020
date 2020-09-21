@@ -42,5 +42,28 @@ namespace WebApp.SamplePages
 
             ArtistList.Items.Insert(0, new ListItem("Select an artist..."));
         }
+
+        protected void SearchAlbums_Click(object sender, EventArgs e)
+        {
+            if (ArtistList.SelectedIndex == 0)
+            {
+                MessageLabel.Text = "Select an artist for search.";
+                AlbumArtistList.DataSource = null;
+                AlbumArtistList.DataBind();
+            }
+            else
+            {
+                AlbumController sysmgr = new AlbumController();
+                List<AlbumArtist> info = sysmgr.Album_FindByArtist(int.Parse(ArtistList.SelectedValue));
+                AlbumArtistList.DataSource = info;
+                AlbumArtistList.DataBind();
+            }
+        }
+
+        protected void AlbumArtistList_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            GridViewRow agvrow = AlbumArtistList.Rows[AlbumArtistList.SelectedIndex];
+            MessageLabel.Text = (agvrow.FindControl("AlbumId") as Label).Text;
+        }
     }
 } 

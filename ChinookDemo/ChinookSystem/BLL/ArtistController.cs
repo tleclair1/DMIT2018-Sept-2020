@@ -13,8 +13,10 @@ using System.ComponentModel;
 
 namespace ChinookSystem.BLL
 {
+    [DataObject]
     public class ArtistController
     {
+        [DataObjectMethod(DataObjectMethodType.Select, false)]
         public List<SelectionList> Artist_List()
         {
             using (var context = new ChinookSystemContext())
