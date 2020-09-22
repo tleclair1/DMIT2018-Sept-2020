@@ -1,4 +1,7 @@
 ﻿<%@ Page Title="ListView ODS CRUD" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeBehind="ListViewODSCRUD.aspx.cs" Inherits="WebApp.SamplePages.ListViewODSCRUD" %>
+
+<%@ Register Src="~/UserControls/MessageUserControl.ascx" TagPrefix="uc1" TagName="MessageUserControl" %>
+
 <asp:Content ID="Content1" ContentPlaceHolderID="MainContent" runat="server">
     <h1>Single Control ODS CRUD : ListView</h1>
     <blockquote>
@@ -8,6 +11,10 @@
         This sample will demonstrate the use of the course supplied error handling control <br />
         This sample will demonstrate validation on a ListView CRUD
     </blockquote>
+    <div class="row">
+        <%-- Using the MessageUserControl to handle errors on a web page --%>
+        <uc1:MessageUserControl runat="server" ID="MessageUserControl" />
+    </div>
     <div class="row">
         <div>
             <%-- Remember to use the attribute DataKeyNames to get the Delete to work. --%>
