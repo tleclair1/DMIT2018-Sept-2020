@@ -36,5 +36,122 @@ namespace ChinookSystem.BLL
                 return results.ToList();
             }
         }
+
+        [DataObjectMethod(DataObjectMethodType.Select, false)]
+        public List<TrackItem> Track_List()
+        {
+            using (var context = new ChinookSystemContext())
+            {
+                var results = from x in context.Tracks
+                              select new TrackItem
+                              {
+                                  TrackId = x.TrackId,
+                                  Name = x.Name,
+                                  AlbumId = x.Album.AlbumId,
+                                  MediaTypeId = x.MediaType.MediaTypeId,
+                                  GenreId = x.Genre.GenreId,
+                                  Composer = x.Composer,
+                                  Milliseconds = x.Milliseconds,
+                                  Bytes = x.Bytes,
+                                  UnitPrice = x.UnitPrice
+                              };
+                return results.ToList();
+            }
+        }
+
+        [DataObjectMethod(DataObjectMethodType.Select, false)]
+        public TrackItem Track_Find(int trackid)
+        {
+            using (var context = new ChinookSystemContext())
+            {
+                var results = (from x in context.Tracks
+                               where x.TrackId == trackid
+                               select new TrackItem
+                               {
+                                   TrackId = x.TrackId,
+                                   Name = x.Name,
+                                   AlbumId = x.Album.AlbumId,
+                                   MediaTypeId = x.MediaType.MediaTypeId,
+                                   GenreId = x.Genre.GenreId,
+                                   Composer = x.Composer,
+                                   Milliseconds = x.Milliseconds,
+                                   Bytes = x.Bytes,
+                                   UnitPrice = x.UnitPrice
+                               }).FirstOrDefault();
+                return results;
+            }
+        }
+
+        [DataObjectMethod(DataObjectMethodType.Select, false)]
+        public List<TrackItem> Track_GetByAlbumId(int albumid)
+        {
+            using (var context = new ChinookSystemContext())
+            {
+                var results = (from x in context.Tracks
+                               where x.AlbumId == albumid
+                               select new TrackItem
+                               {
+                                   TrackId = x.TrackId,
+                                   Name = x.Name,
+                                   AlbumId = x.Album.AlbumId,
+                                   MediaTypeId = x.MediaType.MediaTypeId,
+                                   GenreId = x.Genre.GenreId,
+                                   Composer = x.Composer,
+                                   Milliseconds = x.Milliseconds,
+                                   Bytes = x.Bytes,
+                                   UnitPrice = x.UnitPrice
+                               });
+                return results.ToList();
+            }
+        }
+
+        [DataObjectMethod(DataObjectMethodType.Select, false)]
+        public List<TrackList> List_TracksForPlaylistSelection(string tracksby, string arg)
+        {
+            using (var context = new ChinookSystemContext())
+            {
+                IEnumerable<TrackList> results = null;
+                if (tracksby.Equals("Artist"))
+                {
+                    results = from x in context.Tracks
+                              where (x.Album.Artist.Name.Contains(arg) && tracksby.Equals("Artist"))
+                              orderby x.Album.Artist.Name, x.Name
+                              select new TrackList
+                              {
+                                  TrackID = x.TrackId,
+                                  Name = x.Name,
+                                  Title = x.Album.Title,
+                                  ArtistName = x.Album.Artist.Name,
+                                  MediaName = x.MediaType.Name,
+                                  GenreName = x.Genre.Name,
+                                  Composer = x.Composer,
+                                  Milliseconds = x.Milliseconds,
+                                  Bytes = x.Bytes,
+                                  UnitPrice = x.UnitPrice
+                              };
+                }
+                else
+                {
+                    results = from x in context.Tracks
+                              where (x.Album.Title.Contains(arg) && tracksby.Equals("Album"))
+                              orderby x.Album.Title, x.Name
+                              select new TrackList
+                              {
+                                  TrackID = x.TrackId,
+                                  Name = x.Name,
+                                  Title = x.Album.Title,
+                                  ArtistName = x.Album.Artist.Name,
+                                  MediaName = x.MediaType.Name,
+                                  GenreName = x.Genre.Name,
+                                  Composer = x.Composer,
+                                  Milliseconds = x.Milliseconds,
+                                  Bytes = x.Bytes,
+                                  UnitPrice = x.UnitPrice
+                              };
+                }
+
+                return results.ToList();
+            }
+        }
     }
 }
