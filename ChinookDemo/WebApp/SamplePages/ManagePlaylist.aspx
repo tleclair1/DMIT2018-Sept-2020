@@ -211,7 +211,7 @@
                     <ItemTemplate>
                           
                         <asp:Label runat="server" ID="UnitPrice"
-                            Text='<%# Eval("UnitPrice") %>'></asp:Label>
+                            Text='<%# string.Format("{0:00.00}", Eval("UnitPrice")) %>'></asp:Label>
                     </ItemTemplate>
                 </asp:TemplateField>
             </Columns>
@@ -232,14 +232,16 @@
          OnSelected="SelectCheckForException"
          >
         <SelectParameters>
-            <asp:ControlParameter ControlID="TracksBy" 
-                PropertyName="Text" 
-                Name="tracksby" 
-                Type="String"></asp:ControlParameter>
+            <asp:ControlParameter ControlID="TracksBy"
+                PropertyName="Text"
+                Name="tracksby"
+                Type="String" 
+                DefaultValue="None"></asp:ControlParameter>
             <asp:ControlParameter ControlID="SearchArg" 
                 PropertyName="Text" 
                 Name="arg" 
-                Type="String"></asp:ControlParameter>
+                Type="String" 
+                DefaultValue="None"></asp:ControlParameter>
         </SelectParameters>
     </asp:ObjectDataSource>
     <asp:ObjectDataSource ID="MediaDDLODS" runat="server" OldValuesParameterFormatString="original_{0}" SelectMethod="List_MediaTypeNames" TypeName="ChinookSystem.BLL.MediaTypeController" OnSelected="SelectCheckForException"></asp:ObjectDataSource>

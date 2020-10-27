@@ -5,11 +5,13 @@ using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 
-//#region Additonal Namespaces
+#region Additonal Namespaces
+using ChinookSystem.BLL;
+using ChinookSystem.ViewModels;
 //using ChinookSystem.BLL;
 //using ChinookSystem.Data.POCOs;
 //using WebApp.Security;
-//#endregion
+#endregion
 
 namespace WebApp.SamplePages
 {
@@ -41,15 +43,17 @@ namespace WebApp.SamplePages
 
         protected void MediaTypeFetch_Click(object sender, EventArgs e)
         {
-
-                //code to go here
+            TracksBy.Text = "Media Type";
+            SearchArg.Text = MediaTypeDDL.SelectedValue;
+            TracksSelectionList.DataBind();
 
         }
 
         protected void GenreFetch_Click(object sender, EventArgs e)
         {
-
-                //code to go here
+            TracksBy.Text = "Genre";
+            SearchArg.Text = GenreDDL.SelectedValue;
+            TracksSelectionList.DataBind();
 
         }
 
@@ -68,8 +72,22 @@ namespace WebApp.SamplePages
 
         protected void PlayListFetch_Click(object sender, EventArgs e)
         {
-            //code to go here
- 
+            string username = "HansenB";
+            if (string.IsNullOrEmpty(PlaylistName.Text))
+            {
+                MessageUserControl.ShowInfo("Missing data", "Please enter the playlist name");
+            }
+            else
+            {
+                MessageUserControl.TryRun(() => 
+                {
+                    PlaylistTracksController sysmgr = new PlaylistTracksController();
+                    List<UserPlaylistTrack> info = sysmgr.List_TracksForPlaylist(PlaylistName.Text, username);
+                    PlayList.DataSource = info;
+                    PlayList.DataBind();
+                }, "Playlist","View the current songs on the playlist");
+            }
+
         }
 
         protected void MoveDown_Click(object sender, EventArgs e)
