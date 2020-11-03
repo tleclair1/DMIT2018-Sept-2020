@@ -130,6 +130,15 @@ namespace ChinookSystem.BLL
                         }
                     }
                 }
+
+                if (errors.Count > 0)
+                {
+                    throw new BusinessRuleException("Track movement", errors);
+                }
+                else
+                {
+                    //context.SaveChanges();
+                }
             }
         }//eom
 
