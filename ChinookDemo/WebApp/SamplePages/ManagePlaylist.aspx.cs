@@ -93,19 +93,113 @@ namespace WebApp.SamplePages
         protected void MoveDown_Click(object sender, EventArgs e)
         {
             //code to go here
- 
+            if (string.IsNullOrEmpty(PlaylistName.Text))
+            {
+                MessageUserControl.ShowInfo("Track movement", "You must have a playlist name");
+            }
+            else
+            {
+                if (PlayList.Rows.Count == 0)
+                {
+                    MessageUserControl.ShowInfo("Track movement", "You must have a playlist displayed");
+                }
+                else
+                {
+                    CheckBox selectedSong = null;
+                    int selectedRows = 0;
+                    int trackid = 0;
+                    int tracknumber = 0;
+                    for (int index = 0; index < PlayList.Rows.Count; index++)
+                    {
+                        selectedSong = PlayList.Rows[index].FindControl("Selected") as CheckBox;
+                        if (selectedSong.Checked)
+                        {
+                            selectedRows++;
+                            trackid = int.Parse((PlayList.Rows[index].FindControl("TrackId") as Label).Text);
+                            tracknumber = int.Parse((PlayList.Rows[index].FindControl("TrackNumber") as Label).Text);
+                        }
+                    }
+
+                    if (selectedRows != 1)
+                    {
+                        MessageUserControl.ShowInfo("Track movement", "You must select a single song to move");
+                    }
+                    else
+                    {
+                        if (tracknumber == PlayList.Rows.Count)
+                        {
+                            MessageUserControl.ShowInfo("Track movement", "Song is at the bottom of the list already. Can't move down anymore");
+                        }
+                        else
+                        {
+                            MoveTrack(trackid, tracknumber, "down");
+                        }
+                    }
+                }
+            }
         }
 
         protected void MoveUp_Click(object sender, EventArgs e)
         {
             //code to go here
- 
+            if (string.IsNullOrEmpty(PlaylistName.Text))
+            {
+                MessageUserControl.ShowInfo("Track movement","You must have a playlist name");
+            }
+            else
+            {
+                if (PlayList.Rows.Count == 0)
+                {
+                    MessageUserControl.ShowInfo("Track movement","You must have a playlist displayed");
+                }
+                else
+                {
+                    CheckBox selectedSong = null;
+                    int selectedRows = 0;
+                    int trackid = 0;
+                    int tracknumber = 0;
+                    for (int index = 0; index < PlayList.Rows.Count; index++)
+                    {
+                        selectedSong = PlayList.Rows[index].FindControl("Selected") as CheckBox;
+                        if (selectedSong.Checked)
+                        {
+                            selectedRows++;
+                            trackid = int.Parse((PlayList.Rows[index].FindControl("TrackId") as Label).Text);
+                            tracknumber = int.Parse((PlayList.Rows[index].FindControl("TrackNumber") as Label).Text);
+                        }
+                    }
+
+                    if (selectedRows != 1)
+                    {
+                        MessageUserControl.ShowInfo("Track movement","You must select a single song to move");
+                    }
+                    else
+                    {
+                        if (tracknumber == 1)
+                        {
+                            MessageUserControl.ShowInfo("Track movement","Song is at the top of the list already. Can't move up anymore");
+                        }
+                        else
+                        {
+                            MoveTrack(trackid, tracknumber, "up");
+                        }
+                    }
+                }
+            }
         }
 
         protected void MoveTrack(int trackid, int tracknumber, string direction)
         {
             //call BLL to move track
- 
+            string username = "HansenB";
+            MessageUserControl.TryRun(() =>
+            {
+                PlaylistTracksController sysmgr = new PlaylistTracksController();
+                sysmgr.MoveTrack(username, PlaylistName.Text, trackid, tracknumber, direction);
+                List<UserPlaylistTrack> info = sysmgr.List_TracksForPlaylist(PlaylistName.Text, username);
+                PlayList.DataSource = info;
+                PlayList.DataBind();
+            }, "Track movement","Track has been moved");
         }
 
 
@@ -115,10 +209,24 @@ namespace WebApp.SamplePages
  
         }
 
-        protected void TracksSelectionList_ItemCommand(object sender, 
-            ListViewCommandEventArgs e)
+        protected void TracksSelectionList_ItemCommand(object sender, ListViewCommandEventArgs e)
         {
-            //code to go here
+            string username = "HansenB";
+            if (string.IsNullOrEmpty(PlaylistName.Text))
+            {
+                MessageUserControl.ShowInfo("Missing Data", "Enter the playlist name");
+            }
+            else
+            {
+                MessageUserControl.TryRun(() =>
+                {
+                    PlaylistTracksController sysmgr = new PlaylistTracksController();
+                    sysmgr.Add_TrackToPLaylist(PlaylistName.Text, username, int.Parse(e.CommandArgument.ToString()));
+                    List<UserPlaylistTrack> info = sysmgr.List_TracksForPlaylist(PlaylistName.Text, username);
+                    PlayList.DataSource = info;
+                    PlayList.DataBind();
+                }, "Add track to playlist", "Track has been added to the playlist");
+            }
             
         }
 
