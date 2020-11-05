@@ -111,6 +111,9 @@ namespace ChinookSystem.BLL
                 }
                 else
                 {
+                    //moveTrack= (from x in exists.PlaylistTracks
+                    //            where x.Playlist.Name.Equals(playlistname) && x.Playlist.UserName.Equals(username) && x.TrackId == trackid
+                    //            select x).FirstOrDefault();
                     moveTrack = (from x in context.PlaylistTracks
                                  where x.Playlist.Name.Equals(playlistname) && x.Playlist.UserName.Equals(username) && x.TrackId == trackid
                                  select x).FirstOrDefault();
@@ -122,11 +125,47 @@ namespace ChinookSystem.BLL
                     {
                         if (direction.Equals("up"))
                         {
-
+                            if (moveTrack.TrackNumber == 1)
+                            {
+                                errors.Add("Song playlist is already at the top");
+                            }
+                            else
+                            {
+                                otherTrack = (from x in context.PlaylistTracks
+                                              where x.TrackNumber == (moveTrack.TrackNumber - 1) && x.Playlist.Name.Equals(playlistname) && x.Playlist.UserName.Equals(username)
+                                              select x).FirstOrDefault();
+                                if (otherTrack == null)
+                                {
+                                    errors.Add("Missing required other song track record");
+                                }
+                                else
+                                {
+                                    moveTrack.TrackNumber--;
+                                    otherTrack.TrackNumber++;
+                                }
+                            }
                         }
                         else
                         {
-
+                            if (moveTrack.TrackNumber == exists.PlaylistTracks.Count)
+                            {
+                                errors.Add("Song playlist is already at the bottom");
+                            }
+                            else
+                            {
+                                otherTrack = (from x in context.PlaylistTracks
+                                              where x.TrackNumber == (moveTrack.TrackNumber + 1) && x.Playlist.Name.Equals(playlistname) && x.Playlist.UserName.Equals(username)
+                                              select x).FirstOrDefault();
+                                if (otherTrack == null)
+                                {
+                                    errors.Add("Missing required other song track record");
+                                }
+                                else
+                                {
+                                    moveTrack.TrackNumber++;
+                                    otherTrack.TrackNumber--;
+                                }
+                            }
                         }
                     }
                 }
@@ -137,7 +176,9 @@ namespace ChinookSystem.BLL
                 }
                 else
                 {
-                    //context.SaveChanges();
+                    context.Entry(moveTrack).Property("TrackNumber").IsModified = true;
+                    context.Entry(otherTrack).Property("TrackNumber").IsModified = true;
+                    context.SaveChanges();
                 }
             }
         }//eom
@@ -147,9 +188,46 @@ namespace ChinookSystem.BLL
         {
             using (var context = new ChinookSystemContext())
             {
-               //code to go here
+                List<string> errors = new List<string>();
 
+                Playlist exists = (from x in context.Playlists
+                                   where x.Name.Equals(playlistname) && x.UserName.Equals(username)
+                                   select x).FirstOrDefault();
+                if (exists == null)
+                {
+                    errors.Add("Playlist does not exist");
+                }
+                else
+                {
+                    var tracksKept = context.PlaylistTracks
+                                    .Where(tr => tr.Playlist.Name.Equals(playlistname) 
+                                              && tr.Playlist.UserName.Equals(username) 
+                                              && !trackstodelete.Any(tod => tod == tr.TrackId))
+                                    .OrderBy(tr => tr.TrackNumber)
+                                    .Select(tr => tr);
+                    PlaylistTrack item = null;
+                    foreach (int deleteTrackId in trackstodelete)
+                    {
+                        item = context.PlaylistTracks
+                               .Where(tr => tr.Playlist.Name.Equals(playlistname) 
+                                         && tr.Playlist.UserName.Equals(username) 
+                                         && tr.TrackId == deleteTrackId)
+                               .Select(tr => tr).FirstOrDefault();
+                        if (item != null)
+                        {
+                            exists.PlaylistTracks.Remove(item);
+                        }
+                    }
 
+                    int number = 1;
+                    foreach (var track in tracksKept)
+                    {
+                        track.TrackNumber = number;
+                        context.Entry(track).Property(nameof(PlaylistTrack.TrackNumber)).IsModified = true;
+                        number++;
+                    }
+                    context.SaveChanges();
+                }
             }
         }//eom
     }

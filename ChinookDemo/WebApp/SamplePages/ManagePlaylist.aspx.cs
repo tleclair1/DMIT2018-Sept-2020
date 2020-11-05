@@ -205,8 +205,48 @@ namespace WebApp.SamplePages
 
         protected void DeleteTrack_Click(object sender, EventArgs e)
         {
-            //code to go here
- 
+            if (string.IsNullOrEmpty(PlaylistName.Text))
+            {
+                MessageUserControl.ShowInfo("Track movement", "You must have a playlist name");
+            }
+            else
+            {
+                if (PlayList.Rows.Count == 0)
+                {
+                    MessageUserControl.ShowInfo("Track movement", "You must have a playlist displayed");
+                }
+                else
+                {
+                    List<int> trackIds = new List<int>();
+                    CheckBox selectedSong = null;
+                    int selectedRows = 0;
+                    for (int i = 0; i < PlayList.Rows.Count; i++)
+                    {
+                        selectedSong = PlayList.Rows[i].FindControl("Selected") as CheckBox;
+                        if (selectedSong.Checked)
+                        {
+                            selectedRows++;
+                            trackIds.Add(int.Parse((PlayList.Rows[i].FindControl("TrackId") as Label).Text));
+                        }
+                    }
+                    if (selectedRows == 0)
+                    {
+                        MessageUserControl.ShowInfo("Track removal","You must select at least 1 track to remove");
+                    }
+                    else
+                    {
+                        string username = "HansenB";
+                        MessageUserControl.TryRun(() =>
+                        {
+                            PlaylistTracksController sysmgr = new PlaylistTracksController();
+                            sysmgr.DeleteTracks(username, PlaylistName.Text, trackIds);
+                            List<UserPlaylistTrack> info = sysmgr.List_TracksForPlaylist(PlaylistName.Text, username);
+                            PlayList.DataSource = info;
+                            PlayList.DataBind();
+                        }, "Track removal", "Selected track(s) has been removed from playlist");
+                    }
+                }
+            }
         }
 
         protected void TracksSelectionList_ItemCommand(object sender, ListViewCommandEventArgs e)
