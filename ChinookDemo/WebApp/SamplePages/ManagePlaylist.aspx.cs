@@ -10,7 +10,7 @@ using ChinookSystem.BLL;
 using ChinookSystem.ViewModels;
 //using ChinookSystem.BLL;
 //using ChinookSystem.Data.POCOs;
-//using WebApp.Security;
+using WebApp.Security;
 #endregion
 
 namespace WebApp.SamplePages
@@ -20,7 +20,47 @@ namespace WebApp.SamplePages
         protected void Page_Load(object sender, EventArgs e)
         {
             TracksSelectionList.DataSource = null;
+
+            //test our security
+            //are you logged in?
+            if (Request.IsAuthenticated)
+            {
+                if (User.IsInRole("Customers"))
+                {
+
+                    //obtain the CustomerId on the security User record
+                    SecurityController ssysmgr = new SecurityController();
+                    int? customerid = ssysmgr.GetCurrentUserCustomerId(User.Identity.Name);
+
+                    //need to convert the int? to an int for the call to the CustomerController method
+                    //int custid = customerid == null ? default(int) : int.Parse(customerid.ToString());
+                    int custid = customerid ?? default(int);
+
+                    MessageUserControl.TryRun(() => {
+                        CustomerController csysmgr = new CustomerController();
+                        CustomerItem item = csysmgr.Customer_FindByID(custid);
+                        if (item == null)
+                        {
+                            LoggedUser.Text = "Unknown";
+                            throw new Exception("Logged customer cannot be found on file ");
+                        }
+                        else
+                        {
+                            LoggedUser.Text = item.LastName + ", " + item.FirstName;
+                        }
+                    });
+                }
+                else
+                {
+                    Response.Redirect("~/SamplePages/AccessDenied.aspx");
+                }
+            }
+            else
+            {
+                Response.Redirect("~/Account/Login.aspx");
+            }
         }
+
 
         /// <summary>
         /// your MessageUsercontrol ODS methods go here
